@@ -1,14 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { saveBudget, deleteBudget } from "@/lib/actions";
-import { rupiah, monthStart, CATEGORIES } from "@/lib/format";
+import { rupiah, CATEGORIES } from "@/lib/format";
+import MonthPicker from "@/components/MonthPicker";
+import { parseMonth, monthRange } from "@/lib/dashboard";
 
 export const dynamic = "force-dynamic";
 
-export default async function Budgets() {
+export default async function Budgets({ searchParams }) {
   const supabase = createClient();
+  const ref = parseMonth(searchParams?.month);
+  const { from, to } = monthRange(ref);
   const [budgets, tx] = await Promise.all([
     supabase.from("budgets").select("*").order("category"),
-    supabase.from("transactions").select("category, amount").eq("type", "expense").gte("occurred_on", monthStart()),
+    supabase.from("transactions").select("category, amount").eq("type", "expense").gte("occurred_on", from).lt("occurred_on", to),
   ]);
   const spentBy = {};
   (tx.data ?? []).forEach((r) => { spentBy[r.category] = (spentBy[r.category] ?? 0) + Number(r.amount); });
@@ -16,6 +20,7 @@ export default async function Budgets() {
   return (
     <>
       <h1>Budget bulanan</h1>
+      <MonthPicker path="/budgets" month={ref} />
       <form action={saveBudget} className="panel form">
         <select name="category">{CATEGORIES.expense.map((c) => <option key={c}>{c}</option>)}</select>
         <input name="monthly_limit" inputMode="numeric" placeholder="Batas per bulan (Rp)" required />

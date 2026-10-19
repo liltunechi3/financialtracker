@@ -23,7 +23,7 @@ export function AreaChart({ data, format }) {
   const W = 620, H = 250, L = 48, R = 16, T = 48, B = 28;
   const vals = data.map((d) => d.value);
   let min = Math.min(0, ...vals), max = Math.max(0, ...vals);
-  if (max === min) max = min + 1;
+  if (max === min) max = min + 1_000_000; // data kosong: skala 0–1jt, bukan 0–1
   const x = (i) => L + (i * (W - L - R)) / Math.max(data.length - 1, 1);
   const y = (v) => T + ((max - v) / (max - min)) * (H - T - B);
   const pts = data.map((d, i) => [x(i), y(d.value)]);
