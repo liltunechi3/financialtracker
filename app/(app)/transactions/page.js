@@ -4,7 +4,8 @@ import { rupiah, today, CATEGORIES } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export default async function Transactions() {
+export default async function Transactions({ searchParams }) {
+  const type = searchParams?.type === "income" ? "income" : "expense";
   const { data } = await createClient()
     .from("transactions").select("*")
     .order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).limit(100);
@@ -13,7 +14,7 @@ export default async function Transactions() {
     <>
       <h1>Transaksi</h1>
       <form action={addTransaction} className="panel form">
-        <select name="type" defaultValue="expense">
+        <select name="type" defaultValue={type}>
           <option value="expense">Pengeluaran</option>
           <option value="income">Pemasukan</option>
         </select>
