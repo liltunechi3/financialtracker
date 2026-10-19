@@ -33,3 +33,28 @@ test("summarize: tanpa data tidak error", () => {
   assert.equal(s.incomeChange, null);
   assert.equal(s.savingsRate, 0);
 });
+
+import { parseMonth, shiftMonth, keyOf, monthRange } from "../lib/dashboard.js";
+
+test("parseMonth: valid, tidak valid, dan default", () => {
+  assert.equal(keyOf(parseMonth("2026-11")), "2026-11");
+  assert.equal(keyOf(parseMonth("2026-13", now)), "2026-10");
+  assert.equal(keyOf(parseMonth("abc", now)), "2026-10");
+  assert.equal(keyOf(parseMonth(undefined, now)), "2026-10");
+});
+
+test("shiftMonth & monthRange lintas tahun", () => {
+  assert.equal(keyOf(shiftMonth(parseMonth("2026-12"), 1)), "2027-01");
+  assert.equal(keyOf(shiftMonth(parseMonth("2026-01"), -1)), "2025-12");
+  assert.deepEqual(monthRange(parseMonth("2026-12")), { from: "2026-12-01", to: "2027-01-01" });
+});
+
+test("summarize memakai bulan terpilih sebagai bulan akhir", () => {
+  const s = summarize([
+    { type: "income", amount: 700, category: "Gaji", occurred_on: "2026-11-02" },
+    { type: "expense", amount: 200, category: "Makan", occurred_on: "2026-11-03" },
+  ], parseMonth("2026-11"));
+  assert.equal(s.months.at(-1).key, "2026-11");
+  assert.equal(s.income, 700);
+  assert.equal(s.expense, 200);
+});

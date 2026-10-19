@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
+import MonthPicker from "@/components/MonthPicker";
 import { AreaChart, Donut, Bars, Ring, PALETTE } from "@/components/charts";
 import { rupiah, daysUntil } from "@/lib/format";
 import { payInstallment } from "@/lib/actions";
@@ -25,7 +26,7 @@ function Stat({ icon, label, value, children }) {
   );
 }
 
-export default function DashboardView({ s, goals, budgets, due, debt, recent, monthLabel, canPay = true }) {
+export default function DashboardView({ s, goals, budgets, due, debt, recent, month, canPay = true }) {
   const saved = goals.reduce((a, g) => a + Number(g.saved_amount), 0);
   const target = goals.reduce((a, g) => a + Number(g.target_amount), 0);
   const goalPct = target > 0 ? Math.round((saved / target) * 100) : 0;
@@ -37,7 +38,7 @@ export default function DashboardView({ s, goals, budgets, due, debt, recent, mo
   return (
     <>
       <header className="page-head">
-        <div><h1>Ringkasan</h1><p className="muted">{monthLabel}</p></div>
+        <div><h1>Ringkasan</h1><MonthPicker path="/dashboard" month={month} /></div>
         <div className="quick">
           <Link href="/transactions?type=income" className="qbtn"><Icon name="plus" /> Pemasukan</Link>
           <Link href="/transactions?type=expense" className="qbtn"><Icon name="minus" /> Pengeluaran</Link>
